@@ -1,6 +1,20 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+
+from .forms import CreateOrderForm
+from main.models import Book
+from .models import Order
 
 
-def order(request):
-    return HttpResponse('Hello! This is order application')
+def create_order(request, book_id):
+    book = Book.objects.get(id=book_id)
+    print(request.POST)
+    order_form = CreateOrderForm(request.POST)
+    if order_form.is_valid():
+        print(order_form.cleaned_data)
+        # order = Order.objects.create(**order_form.cleaned_data)
+        order_form.save()
+        # return render(request, 'order/order.html', {'form': order_form, 'book': book})
+        return redirect(book.get_absolute_url())
+    order_form = CreateOrderForm()
+    return render(request, 'order/order.html', {'form': order_form, 'book': book})
